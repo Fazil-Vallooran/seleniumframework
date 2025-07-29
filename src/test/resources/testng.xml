@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suite name="Selenium Test Suite" verbose="1">
+    <listeners>
+        <listener class-name="com.epam.reportportal.testng.ReportPortalTestNGListener"/>
+        <listener class-name="seleniumproject.project.listeners.TestListener"/>
+    </listeners>
+    
+    <parameter name="browser" value="chrome"/>
+    
+    <test name="Login Tests">
+        <classes>
+            <class name="seleniumproject.project.tests.LoginTest"/>
+        </classes>
+    </test>
+    
+    <test name="Dashboard Tests">
+        <classes>
+            <class name="seleniumproject.project.tests.DashboardTest"/>
+        </classes>
+    </test>
+</suite>
