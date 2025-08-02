@@ -1,0 +1,122 @@
+version: '3.8'
+
+services:
+  # Selenium Hub
+  selenium-hub:
+    image: selenium/hub:4.15.0
+    container_name: selenium-hub
+    ports:
+      - "4444:4444"
+    environment:
+      - GRID_MAX_SESSION=16
+      - GRID_BROWSER_TIMEOUT=300
+      - GRID_TIMEOUT=300
+
+  # Chrome Node
+  chrome-node:
+    image: selenium/node-chrome:4.15.0
+    depends_on:
+      - selenium-hub
+    environment:
+      - HUB_HOST=selenium-hub
+      - HUB_PORT=4444
+      - NODE_MAX_INSTANCES=4
+      - NODE_MAX_SESSION=4
+    volumes:
+      - /dev/shm:/dev/shm
+    deploy:
+      replicas: 2
+
+  # Firefox Node
+  firefox-node:
+    image: selenium/node-firefox:4.15.0
+    depends_on:
+      - selenium-hub
+    environment:
+      - HUB_HOST=selenium-hub
+      - HUB_PORT=4444
+      - NODE_MAX_INSTANCES=4
+      - NODE_MAX_SESSION=4
+    volumes:
+      - /dev/shm:/dev/shm
+    deploy:
+      replicas: 1
+
+  # Edge Node
+  edge-node:
+    image: selenium/node-edge:4.15.0
+    depends_on:
+      - selenium-hub
+    environment:
+      - HUB_HOST=selenium-hub
+      - HUB_PORT=4444
+      - NODE_MAX_INSTANCES=2
+      - NODE_MAX_SESSION=2
+    volumes:
+      - /dev/shm:/dev/shm
+    deploy:
+      replicas: 1
+
+  # Test Runner Container
+  test-runner:
+    build: .
+    container_name: selenium-tests
+    depends_on:
+      - selenium-hub
+      - chrome-node
+      - firefox-node
+    environment:
+      - SELENIUM_HUB_URL=http://selenium-hub:4444/wd/hub
+      - BROWSER=chrome
+      - HEADLESS=true
+      - PARALLEL_TESTS=true
+      - THREAD_COUNT=4
+      - ENVIRONMENT=staging
+    volumes:
+      - ./target/test-results:/app/test-results
+      - ./target/screenshots:/app/screenshots
+      - ./target/videos:/app/videos
+    command: ["/app/run-tests.sh", "-Dsuite=regression"]
+
+  # Report Portal (Optional - for advanced reporting)
+  reportportal-db:
+    image: postgres:12
+    environment:
+      POSTGRES_USER: rpuser
+      POSTGRES_PASSWORD: rppass
+      POSTGRES_DB: reportportal
+    volumes:
+      - rp_data:/var/lib/postgresql/data
+    restart: always
+
+  reportportal:
+    image: reportportal/service-api:5.7.0
+    depends_on:
+      - reportportal-db
+    environment:
+      - RP_DB_HOST=reportportal-db
+      - RP_DB_USER=rpuser
+      - RP_DB_PASS=rppass
+      - RP_DB_NAME=reportportal
+    ports:
+      - "8080:8080"
+    restart: always
+
+  # Allure Report Server
+  allure-server:
+    image: frankescobar/allure-docker-service
+    ports:
+      - "5050:5050"
+    environment:
+      CHECK_RESULTS_EVERY_SECONDS: 1
+      KEEP_HISTORY: 1
+    volumes:
+      - ./target/allure-results:/app/allure-results
+      - ./target/allure-reports:/app/default-reports
+
+volumes:
+  rp_data:
+
+networks:
+  default:
+    name: selenium-network

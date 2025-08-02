@@ -1,0 +1,409 @@
+name: Selenium Framework CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run tests daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      test_suite:
+        description: 'Test Suite to Run'
+        required: true
+        default: 'smoke'
+        type: choice
+        options:
+        - smoke
+        - regression
+        - api
+        - all
+      browser:
+        description: 'Browser to test'
+        required: true
+        default: 'chrome'
+        type: choice
+        options:
+        - chrome
+        - firefox
+        - edge
+        - safari
+      environment:
+        description: 'Environment to test'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+        - dev
+        - staging
+        - prod
+
+env:
+  MAVEN_OPTS: "-Xmx1024m"
+  JAVA_VERSION: "11"
+
+jobs:
+  # Job 1: Code Quality & Security Checks
+  code-quality:
+    runs-on: ubuntu-latest
+    name: Code Quality & Security Analysis
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Full history for SonarQube
+    
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: 'temurin'
+        cache: maven
+    
+    - name: Cache Maven dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+    
+    - name: Run Maven Compile
+      run: mvn clean compile -B
+    
+    - name: Run Unit Tests
+      run: mvn test -B -Dtest=!**/*IntegrationTest
+    
+    - name: Generate Test Report
+      uses: dorny/test-reporter@v1
+      if: success() || failure()
+      with:
+        name: Unit Test Results
+        path: target/surefire-reports/*.xml
+        reporter: java-junit
+    
+    - name: SonarQube Scan
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+        if [ "${{ secrets.SONAR_TOKEN }}" != "" ]; then
+          mvn sonar:sonar \
+            -Dsonar.projectKey=selenium-framework \
+            -Dsonar.organization=${{ github.repository_owner }} \
+            -Dsonar.host.url=https://sonarcloud.io
+        else
+          echo "SonarQube scan skipped - SONAR_TOKEN not configured"
+        fi
+
+  # Job 2: Build and Package Framework
+  build-framework:
+    needs: code-quality
+    runs-on: ubuntu-latest
+    name: Build & Package Framework
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+    
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: 'temurin'
+        cache: maven
+    
+    - name: Build Framework JAR
+      run: mvn clean package -DskipTests -B
+    
+    - name: Generate Sources JAR
+      run: mvn source:jar -B
+    
+    - name: Generate Javadoc JAR
+      run: mvn javadoc:jar -B
+    
+    - name: Upload Framework Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: selenium-framework-jars
+        path: |
+          target/*.jar
+          !target/original-*.jar
+        retention-days: 30
+
+  # Job 3: Integration Tests - Multiple Browsers
+  integration-tests:
+    needs: build-framework
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chrome, firefox, edge]
+        test-suite: [smoke, regression, api]
+        exclude:
+          # Skip edge tests on certain suites to optimize pipeline
+          - browser: edge
+            test-suite: api
+    
+    name: Integration Tests - ${{ matrix.browser }} - ${{ matrix.test-suite }}
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+    
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: 'temurin'
+        cache: maven
+    
+    - name: Download Framework Artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: selenium-framework-jars
+        path: target/
+    
+    - name: Install Chrome Browser
+      if: matrix.browser == 'chrome'
+      uses: browser-actions/setup-chrome@latest
+    
+    - name: Install Firefox Browser
+      if: matrix.browser == 'firefox'
+      uses: browser-actions/setup-firefox@latest
+    
+    - name: Install Edge Browser
+      if: matrix.browser == 'edge'
+      uses: browser-actions/setup-edge@latest
+    
+    - name: Start Xvfb (Virtual Display)
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y xvfb
+        export DISPLAY=:99
+        Xvfb :99 -screen 0 1920x1080x24 > /dev/null 2>&1 &
+        echo "DISPLAY=:99" >> $GITHUB_ENV
+    
+    - name: Run Integration Tests
+      run: |
+        mvn test -B \
+          -Dbrowser=${{ matrix.browser }} \
+          -Dtest.suite=${{ matrix.test-suite }} \
+          -Dheadless=true \
+          -Denvironment=staging \
+          -Dparallel.tests=true \
+          -Dthread.count=3
+      env:
+        DISPLAY: :99
+    
+    - name: Generate Allure Report
+      if: always()
+      run: |
+        mvn allure:report -B
+    
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results-${{ matrix.browser }}-${{ matrix.test-suite }}
+        path: |
+          target/surefire-reports/
+          target/site/allure-maven-plugin/
+          target/screenshots/
+        retention-days: 14
+    
+    - name: Upload to Report Portal
+      if: always()
+      env:
+        RP_ENDPOINT: ${{ secrets.RP_ENDPOINT }}
+        RP_UUID: ${{ secrets.RP_UUID }}
+        RP_PROJECT: ${{ secrets.RP_PROJECT }}
+      run: |
+        if [ "${{ secrets.RP_ENDPOINT }}" != "" ]; then
+          echo "Uploading results to Report Portal..."
+          # Results are automatically uploaded via TestNG listener
+        else
+          echo "Report Portal upload skipped - credentials not configured"
+        fi
+
+  # Job 4: Performance Tests
+  performance-tests:
+    needs: build-framework
+    runs-on: ubuntu-latest
+    name: Performance Tests
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+    
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: 'temurin'
+        cache: maven
+    
+    - name: Run Performance Tests
+      run: |
+        mvn test -B \
+          -Dtest=**/*PerformanceTest \
+          -Dbrowser=chrome \
+          -Dheadless=true \
+          -Dperformance.monitoring=true
+    
+    - name: Upload Performance Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: performance-results
+        path: target/performance-reports/
+        retention-days: 30
+
+  # Job 5: Security Tests
+  security-tests:
+    needs: build-framework
+    runs-on: ubuntu-latest
+    name: Security Tests
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+    
+    - name: Run OWASP ZAP Security Scan
+      uses: zaproxy/action-full-scan@v0.7.0
+      with:
+        target: 'https://staging.yourapp.com'
+        rules_file_name: '.zap/rules.tsv'
+        cmd_options: '-a'
+
+  # Job 6: Deploy to Test Environment
+  deploy-staging:
+    needs: [integration-tests, performance-tests]
+    runs-on: ubuntu-latest
+    name: Deploy to Staging
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+    
+    - name: Deploy to Staging Environment
+      run: |
+        echo "Deploying application to staging environment..."
+        # Add your deployment script here
+        # kubectl apply -f k8s/staging/
+        # or docker-compose up -d
+    
+    - name: Run Smoke Tests on Staging
+      run: |
+        mvn test -B \
+          -Dtest.suite=smoke \
+          -Dbrowser=chrome \
+          -Denvironment=staging \
+          -Dheadless=true
+
+  # Job 7: Notification & Reporting
+  notify:
+    needs: [integration-tests, performance-tests, security-tests]
+    runs-on: ubuntu-latest
+    name: Send Notifications
+    if: always()
+    
+    steps:
+    - name: Download All Test Results
+      uses: actions/download-artifact@v4
+      with:
+        path: test-results/
+    
+    - name: Prepare Test Summary
+      run: |
+        echo "## 🚀 Test Execution Summary" > test-summary.md
+        echo "**Branch:** ${{ github.ref_name }}" >> test-summary.md
+        echo "**Commit:** ${{ github.sha }}" >> test-summary.md
+        echo "**Triggered by:** ${{ github.actor }}" >> test-summary.md
+        echo "**Workflow:** ${{ github.workflow }}" >> test-summary.md
+        echo "" >> test-summary.md
+        
+        # Add test results summary
+        if [ -f "test-results/test-results-chrome-smoke/surefire-reports/testng-results.xml" ]; then
+          echo "✅ Smoke Tests: Passed" >> test-summary.md
+        else
+          echo "❌ Smoke Tests: Failed" >> test-summary.md
+        fi
+    
+    - name: Send Slack Notification
+      uses: 8398a7/action-slack@v3
+      if: always()
+      with:
+        status: ${{ job.status }}
+        channel: '#automation-tests'
+        text: |
+          🤖 *Selenium Framework CI/CD Pipeline*
+          
+          *Repository:* ${{ github.repository }}
+          *Branch:* ${{ github.ref_name }}
+          *Commit:* ${{ github.sha }}
+          *Author:* ${{ github.actor }}
+          *Status:* ${{ job.status }}
+          
+          *Test Results:*
+          - Integration Tests: ${{ needs.integration-tests.result }}
+          - Performance Tests: ${{ needs.performance-tests.result }}
+          - Security Tests: ${{ needs.security-tests.result }}
+          
+          <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Details>
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+    
+    - name: Send Teams Notification
+      uses: skitionek/notify-microsoft-teams@master
+      if: always() && secrets.TEAMS_WEBHOOK_URL
+      with:
+        webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+        title: "Selenium Framework Test Results"
+        summary: "Test execution completed with status: ${{ job.status }}"
+        text: |
+          **Repository:** ${{ github.repository }}
+          **Branch:** ${{ github.ref_name }}
+          **Status:** ${{ job.status }}
+          **Integration Tests:** ${{ needs.integration-tests.result }}
+          **Performance Tests:** ${{ needs.performance-tests.result }}
+
+  # Job 8: Release Management
+  release:
+    needs: [deploy-staging]
+    runs-on: ubuntu-latest
+    name: Create Release
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Download Framework Artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: selenium-framework-jars
+        path: artifacts/
+    
+    - name: Generate Release Notes
+      run: |
+        echo "## 🚀 Release Notes" > release-notes.md
+        echo "" >> release-notes.md
+        echo "### Changes in this release:" >> release-notes.md
+        git log --oneline --pretty=format:"- %s" $(git describe --tags --abbrev=0)..HEAD >> release-notes.md
+    
+    - name: Create GitHub Release
+      uses: ncipollo/release-action@v1
+      with:
+        tag: v${{ github.run_number }}
+        name: Release v${{ github.run_number }}
+        bodyFile: release-notes.md
+        artifacts: "artifacts/*.jar"
+        token: ${{ secrets.GITHUB_TOKEN }}
+        draft: false
+        prerelease: false
