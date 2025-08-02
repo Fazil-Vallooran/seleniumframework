@@ -1,9 +1,9 @@
-package seleniumproject.project.utils;
+package com.automation.framework.utils;
 
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
-import seleniumproject.project.base.DriverManager;
+import com.automation.framework.base.DriverManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +18,12 @@ public class ScreenshotUtils {
         String filePath = System.getProperty("user.dir") + "/screenshots/" + fileName;
         
         try {
+            // Check if WebDriver is available (for UI tests)
+            if (DriverManager.getDriver() == null) {
+                System.out.println("No WebDriver available - skipping screenshot for API test: " + testName);
+                return null;
+            }
+            
             // Create screenshots directory if it doesn't exist
             File screenshotDir = new File(System.getProperty("user.dir") + "/screenshots/");
             if (!screenshotDir.exists()) {
@@ -31,7 +37,7 @@ public class ScreenshotUtils {
             
             System.out.println("Screenshot captured: " + filePath);
             return filePath;
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.err.println("Failed to capture screenshot: " + e.getMessage());
             return null;
         }

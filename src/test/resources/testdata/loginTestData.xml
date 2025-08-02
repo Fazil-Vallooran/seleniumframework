@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testSuite name="LoginTestSuite">
+    <testCase id="TC001" priority="high" type="positive">
+        <username>admin@example.com</username>
+        <password>password123</password>
+        <expectedResult>success</expectedResult>
+        <description>Valid admin login test</description>
+        <environment>production</environment>
+    </testCase>
+    
+    <testCase id="TC002" priority="medium" type="negative">
+        <username>invalid@example.com</username>
+        <password>wrongpassword</password>
+        <expectedResult>failure</expectedResult>
+        <description>Invalid credentials test</description>
+        <environment>staging</environment>
+    </testCase>
+    
+    <testCase id="TC003" priority="low" type="boundary">
+        <username>user@test.com</username>
+        <password></password>
+        <expectedResult>failure</expectedResult>
+        <description>Empty password test</description>
+        <environment>development</environment>
+    </testCase>
+    
+    <testCase id="TC004" priority="high" type="positive">
+        <username>manager@company.com</username>
+        <password>manager2024</password>
+        <expectedResult>success</expectedResult>
+        <description>Manager role login test</description>
+        <environment>production</environment>
+    </testCase>
+</testSuite>

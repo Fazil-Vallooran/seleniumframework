@@ -1,4 +1,4 @@
-package seleniumproject.project.pages;
+package com.automation.framework.pages;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;

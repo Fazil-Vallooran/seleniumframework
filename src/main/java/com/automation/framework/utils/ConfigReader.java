@@ -1,4 +1,4 @@
-package seleniumproject.project.utils;
+package com.automation.framework.utils;
 
 import java.io.FileInputStream;
 import java.io.IOException;

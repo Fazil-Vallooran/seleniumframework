@@ -1,8 +1,8 @@
-package seleniumproject.project.listeners;
+package com.automation.framework.listeners;
 
 import org.testng.ITestListener;
 import org.testng.ITestResult;
-import seleniumproject.project.utils.ScreenshotUtils;
+import com.automation.framework.utils.ScreenshotUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 

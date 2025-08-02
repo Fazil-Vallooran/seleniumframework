@@ -1,4 +1,4 @@
-package seleniumproject.project.pages;
+package com.automation.framework.pages;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -34,7 +34,7 @@ public class LoginPage extends BasePage {
     }
     
     public void enterEmail(String email) {
-        sendKeys(emailField, email); 
+        sendKeys(emailField, email);
     }
     
     public void enterPassword(String password) {

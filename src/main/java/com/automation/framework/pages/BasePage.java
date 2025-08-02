@@ -1,10 +1,10 @@
-package seleniumproject.project.pages;
+package com.automation.framework.pages;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import seleniumproject.project.base.DriverManager;
+import com.automation.framework.base.DriverManager;
 
 import java.time.Duration;
 

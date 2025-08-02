@@ -1,21 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<suite name="Selenium Test Suite" verbose="1">
+<suite name="Selenium Automation Framework Test Suite" verbose="1">
     <listeners>
         <listener class-name="com.epam.reportportal.testng.ReportPortalTestNGListener"/>
-        <listener class-name="seleniumproject.project.listeners.TestListener"/>
+        <listener class-name="com.automation.framework.listeners.TestListener"/>
     </listeners>
     
     <parameter name="browser" value="chrome"/>
     
+    <test name="API Tests">
+        <classes>
+            <class name="com.automation.framework.tests.ApiTest"/>
+        </classes>
+    </test>
+    
     <test name="Login Tests">
         <classes>
-            <class name="seleniumproject.project.tests.LoginTest"/>
+            <class name="com.automation.framework.tests.LoginTest"/>
         </classes>
     </test>
     
     <test name="Dashboard Tests">
         <classes>
-            <class name="seleniumproject.project.tests.DashboardTest"/>
+            <class name="com.automation.framework.tests.DashboardTest"/>
         </classes>
     </test>
 </suite>

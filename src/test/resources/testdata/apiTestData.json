@@ -1,0 +1,141 @@
+[
+  {
+    "testCaseId": "API_TC001",
+    "testType": "smoke",
+    "method": "GET",
+    "endpoint": "/posts",
+    "description": "Get all posts - verify API is accessible",
+    "expectedStatusCode": 200,
+    "expectedResponseTime": 2000,
+    "validations": [
+      {
+        "type": "jsonArraySize",
+        "jsonPath": "$",
+        "expectedValue": 100
+      },
+      {
+        "type": "jsonPathExists",
+        "jsonPath": "$[0].id"
+      },
+      {
+        "type": "jsonPathExists",
+        "jsonPath": "$[0].title"
+      }
+    ]
+  },
+  {
+    "testCaseId": "API_TC002",
+    "testType": "functional",
+    "method": "GET",
+    "endpoint": "/posts/1",
+    "description": "Get specific post by ID",
+    "expectedStatusCode": 200,
+    "expectedResponseTime": 1500,
+    "validations": [
+      {
+        "type": "jsonPathValue",
+        "jsonPath": "$.id",
+        "expectedValue": 1
+      },
+      {
+        "type": "jsonPathExists",
+        "jsonPath": "$.title"
+      },
+      {
+        "type": "jsonPathExists",
+        "jsonPath": "$.body"
+      },
+      {
+        "type": "jsonPathExists",
+        "jsonPath": "$.userId"
+      }
+    ]
+  },
+  {
+    "testCaseId": "API_TC003",
+    "testType": "functional",
+    "method": "POST",
+    "endpoint": "/posts",
+    "description": "Create new post",
+    "requestBody": {
+      "title": "Automation Test Post",
+      "body": "This is a test post created by automation framework",
+      "userId": 1
+    },
+    "expectedStatusCode": 201,
+    "expectedResponseTime": 3000,
+    "validations": [
+      {
+        "type": "jsonPathValue",
+        "jsonPath": "$.title",
+        "expectedValue": "Automation Test Post"
+      },
+      {
+        "type": "jsonPathValue",
+        "jsonPath": "$.userId",
+        "expectedValue": 1
+      },
+      {
+        "type": "jsonPathExists",
+        "jsonPath": "$.id"
+      }
+    ]
+  },
+  {
+    "testCaseId": "API_TC004",
+    "testType": "functional",
+    "method": "PUT",
+    "endpoint": "/posts/1",
+    "description": "Update existing post",
+    "requestBody": {
+      "id": 1,
+      "title": "Updated Post Title",
+      "body": "Updated post content",
+      "userId": 1
+    },
+    "expectedStatusCode": 200,
+    "expectedResponseTime": 2000,
+    "validations": [
+      {
+        "type": "jsonPathValue",
+        "jsonPath": "$.id",
+        "expectedValue": 1
+      },
+      {
+        "type": "jsonPathValue",
+        "jsonPath": "$.title",
+        "expectedValue": "Updated Post Title"
+      }
+    ]
+  },
+  {
+    "testCaseId": "API_TC005",
+    "testType": "negative",
+    "method": "GET",
+    "endpoint": "/posts/9999",
+    "description": "Get non-existent post - should return 404",
+    "expectedStatusCode": 404,
+    "expectedResponseTime": 1000,
+    "validations": [
+      {
+        "type": "bodyContains",
+        "expectedValue": "{}"
+      }
+    ]
+  },
+  {
+    "testCaseId": "API_TC006",
+    "testType": "functional",
+    "method": "DELETE",
+    "endpoint": "/posts/1",
+    "description": "Delete existing post",
+    "expectedStatusCode": 200,
+    "expectedResponseTime": 1500,
+    "validations": [
+      {
+        "type": "bodyContains",
+        "expectedValue": "{}"
+      }
+    ]
+  }
+]

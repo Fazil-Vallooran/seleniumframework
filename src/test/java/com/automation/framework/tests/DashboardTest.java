@@ -1,12 +1,12 @@
-package seleniumproject.project.tests;
+package com.automation.framework.tests;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
-import seleniumproject.project.base.BaseTest;
-import seleniumproject.project.pages.HomePage;
-import seleniumproject.project.pages.LoginPage;
-import seleniumproject.project.pages.DashboardPage;
-import seleniumproject.project.utils.ConfigReader;
+import com.automation.framework.base.BaseTest;
+import com.automation.framework.pages.HomePage;
+import com.automation.framework.pages.LoginPage;
+import com.automation.framework.pages.DashboardPage;
+import com.automation.framework.utils.ConfigReader;
 import com.epam.reportportal.annotations.Step;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,13 +41,12 @@ public class DashboardTest extends BaseTest {
         performLogin();
         
         DashboardPage dashboardPage = new DashboardPage();
-        LoginPage loginPage = new LoginPage();
         
         // Perform logout
         performLogout(dashboardPage);
         
         // Verify logout successful
-        verifyLogoutSuccessful(loginPage);
+        verifyLogoutSuccessful();
         
         logger.info("Logout test completed successfully");
     }
@@ -81,9 +80,6 @@ public class DashboardTest extends BaseTest {
         dashboardPage.clickCustomerInfo();
         logger.info("Customer Info link clicked");
         
-        // Navigate back to dashboard (you might need to implement this)
-        // For now, we'll just verify the click worked
-        
         // Test Orders link
         dashboardPage.clickOrders();
         logger.info("Orders link clicked");
@@ -100,8 +96,7 @@ public class DashboardTest extends BaseTest {
     }
     
     @Step("Verify logout was successful")
-    private void verifyLogoutSuccessful(LoginPage loginPage) {
-        // After logout, login link should be visible again
+    private void verifyLogoutSuccessful() {
         HomePage homePage = new HomePage();
         Assert.assertTrue(homePage.getPageTitle().contains("nopCommerce"), 
             "Should be redirected to home page after logout");

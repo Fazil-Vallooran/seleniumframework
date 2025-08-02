@@ -1,4 +1,4 @@
-https://github.com/Fazil-Vallooran/seleniumframework.githttps://github.com/Fazil-Vallooran/seleniumframework.gitpackage seleniumproject.project.base;
+package com.automation.framework.base;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
@@ -7,7 +7,7 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxOptions;
-import seleniumproject.project.utils.ConfigReader;
+import com.automation.framework.utils.ConfigReader;
 
 import java.time.Duration;
 

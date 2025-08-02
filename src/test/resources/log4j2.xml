@@ -11,7 +11,7 @@
     </Appenders>
     
     <Loggers>
-        <Logger name="seleniumproject.project" level="INFO" additivity="false">
+        <Logger name="com.automation.framework" level="INFO" additivity="false">
             <AppenderRef ref="ConsoleAppender"/>
             <AppenderRef ref="ReportPortalAppender"/>
         </Logger>

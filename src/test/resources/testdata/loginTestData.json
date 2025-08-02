@@ -1,0 +1,34 @@
+[
+  {
+    "testCaseId": "TC001",
+    "testType": "positive",
+    "username": "admin@example.com",
+    "password": "password123",
+    "expectedResult": "success",
+    "description": "Valid admin login test"
+  },
+  {
+    "testCaseId": "TC002",
+    "testType": "negative",
+    "username": "invalid@example.com",
+    "password": "wrongpassword",
+    "expectedResult": "failure",
+    "description": "Invalid credentials test"
+  },
+  {
+    "testCaseId": "TC003",
+    "testType": "boundary",
+    "username": "user@test.com",
+    "password": "",
+    "expectedResult": "failure",
+    "description": "Empty password test"
+  },
+  {
+    "testCaseId": "TC004",
+    "testType": "positive",
+    "username": "manager@company.com",
+    "password": "manager2024",
+    "expectedResult": "success",
+    "description": "Manager role login test"
+  }
+]
