@@ -2,33 +2,49 @@
   {
     "testCaseId": "TC001",
     "testType": "positive",
-    "username": "admin@example.com",
-    "password": "password123",
+    "username": "tomsmith",
+    "password": "SuperSecretPassword!",
     "expectedResult": "success",
-    "description": "Valid admin login test"
+    "description": "Valid login test with The Internet credentials"
   },
   {
     "testCaseId": "TC002",
     "testType": "negative",
-    "username": "invalid@example.com",
+    "username": "invaliduser",
     "password": "wrongpassword",
     "expectedResult": "failure",
-    "description": "Invalid credentials test"
+    "description": "Invalid username test"
   },
   {
     "testCaseId": "TC003",
-    "testType": "boundary",
-    "username": "user@test.com",
+    "testType": "negative",
+    "username": "tomsmith",
+    "password": "wrongpassword",
+    "expectedResult": "failure",
+    "description": "Valid username with wrong password"
+  },
+  {
+    "testCaseId": "TC004",
+    "testType": "negative",
+    "username": "",
+    "password": "SuperSecretPassword!",
+    "expectedResult": "failure",
+    "description": "Empty username test"
+  },
+  {
+    "testCaseId": "TC005",
+    "testType": "negative",
+    "username": "tomsmith",
     "password": "",
     "expectedResult": "failure",
     "description": "Empty password test"
   },
   {
-    "testCaseId": "TC004",
-    "testType": "positive",
-    "username": "manager@company.com",
-    "password": "manager2024",
-    "expectedResult": "success",
-    "description": "Manager role login test"
+    "testCaseId": "TC006",
+    "testType": "boundary",
+    "username": " tomsmith ",
+    "password": "SuperSecretPassword!",
+    "expectedResult": "failure",
+    "description": "Username with spaces test"
   }
 ]

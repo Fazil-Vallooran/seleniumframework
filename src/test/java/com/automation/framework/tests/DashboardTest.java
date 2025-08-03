@@ -3,103 +3,123 @@ package com.automation.framework.tests;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 import com.automation.framework.base.BaseTest;
-import com.automation.framework.pages.HomePage;
-import com.automation.framework.pages.LoginPage;
-import com.automation.framework.pages.DashboardPage;
-import com.automation.framework.utils.ConfigReader;
-import com.epam.reportportal.annotations.Step;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import com.automation.framework.pages.TheInternetElementsPage;
+import com.automation.framework.pages.TheInternetHomePage;
+import com.automation.framework.utils.ReportProvider;
+import org.openqa.selenium.Alert;
 
 public class DashboardTest extends BaseTest {
     
-    private static final Logger logger = LogManager.getLogger(DashboardTest.class);
-    
-    @Test(priority = 1, description = "Verify dashboard navigation elements")
-    public void testDashboardNavigation() {
-        logger.info("Starting dashboard navigation test");
+    @Test(groups = {"smoke", "regression"}, priority = 1)
+    public void testTheInternetHomePage() {
+        ReportProvider.info("Starting The Internet home page test");
         
-        // Login first
-        performLogin();
+        // Navigate to The Internet home page
+        driver.get("https://the-internet.herokuapp.com/");
         
-        DashboardPage dashboardPage = new DashboardPage();
+        TheInternetHomePage homePage = new TheInternetHomePage();
         
-        // Verify dashboard elements
-        verifyDashboardElements(dashboardPage);
+        // Verify home page elements
+        Assert.assertTrue(homePage.isPageTitleDisplayed(), "Page title should be displayed");
+        Assert.assertEquals(homePage.getPageTitle(), "Welcome to the-internet", "Page title should match");
         
-        // Test navigation links
-        testNavigationLinks(dashboardPage);
-        
-        logger.info("Dashboard navigation test completed successfully");
+        ReportProvider.info("The Internet home page test completed successfully");
     }
     
-    @Test(priority = 2, description = "Verify user can logout from dashboard")
-    public void testLogout() {
-        logger.info("Starting logout test");
+    @Test(groups = {"regression"}, priority = 2)
+    public void testDropdownFunctionality() {
+        ReportProvider.info("Starting dropdown functionality test");
         
-        // Login first
-        performLogin();
+        // Navigate to dropdown page
+        driver.get("https://the-internet.herokuapp.com/dropdown");
         
-        DashboardPage dashboardPage = new DashboardPage();
+        TheInternetElementsPage elementsPage = new TheInternetElementsPage();
         
-        // Perform logout
-        performLogout(dashboardPage);
+        // Test dropdown selection
+        elementsPage.selectDropdownOption("1");
+        Assert.assertEquals(elementsPage.getSelectedDropdownValue(), "1", "Option 1 should be selected");
         
-        // Verify logout successful
-        verifyLogoutSuccessful();
+        elementsPage.selectDropdownOption("2");
+        Assert.assertEquals(elementsPage.getSelectedDropdownValue(), "2", "Option 2 should be selected");
         
-        logger.info("Logout test completed successfully");
+        ReportProvider.info("Dropdown functionality test completed successfully");
     }
     
-    @Step("Perform login to access dashboard")
-    private void performLogin() {
-        HomePage homePage = new HomePage();
-        LoginPage loginPage = new LoginPage();
+    @Test(groups = {"smoke"}, priority = 3)
+    public void testCheckboxInteractions() {
+        ReportProvider.info("Starting checkbox interactions test");
         
-        String email = ConfigReader.getProperty("testEmail");
-        String password = ConfigReader.getProperty("testPassword");
+        // Navigate to checkboxes page
+        driver.get("https://the-internet.herokuapp.com/checkboxes");
         
-        loginPage.login(email, password);
-        logger.info("Login performed for dashboard access");
+        TheInternetElementsPage elementsPage = new TheInternetElementsPage();
+        
+        // Test checkbox interactions
+        int checkboxCount = elementsPage.getCheckboxCount();
+        Assert.assertTrue(checkboxCount >= 2, "Should have at least 2 checkboxes");
+        
+        // Test first checkbox
+        elementsPage.checkCheckbox(0);
+        Assert.assertTrue(elementsPage.isCheckboxSelected(0), "First checkbox should be selected");
+        
+        // Test second checkbox
+        if (checkboxCount > 1) {
+            boolean wasSelected = elementsPage.isCheckboxSelected(1);
+            if (wasSelected) {
+                elementsPage.uncheckCheckbox(1);
+                Assert.assertFalse(elementsPage.isCheckboxSelected(1), "Second checkbox should be unselected");
+            } else {
+                elementsPage.checkCheckbox(1);
+                Assert.assertTrue(elementsPage.isCheckboxSelected(1), "Second checkbox should be selected");
+            }
+        }
+        
+        ReportProvider.info("Checkbox interactions test completed successfully");
     }
     
-    @Step("Verify dashboard elements are displayed")
-    private void verifyDashboardElements(DashboardPage dashboardPage) {
-        Assert.assertTrue(dashboardPage.isAccountNavigationDisplayed(), 
-            "Account navigation should be displayed");
+    @Test(groups = {"regression"}, priority = 4)
+    public void testDynamicContent() {
+        ReportProvider.info("Starting dynamic content test");
         
-        String pageTitle = dashboardPage.getPageTitle();
-        Assert.assertNotNull(pageTitle, "Page title should not be null");
+        // Navigate to dynamic content page
+        driver.get("https://the-internet.herokuapp.com/dynamic_content");
         
-        logger.info("Dashboard elements verified successfully");
+        TheInternetElementsPage elementsPage = new TheInternetElementsPage();
+        
+        // Verify dynamic content exists
+        int contentCount = elementsPage.getDynamicContentCount();
+        Assert.assertTrue(contentCount > 0, "Should have dynamic content elements");
+        
+        // Refresh and verify content still exists
+        elementsPage.refreshDynamicContent();
+        
+        // Verify we're still on the dynamic content page
+        Assert.assertTrue(driver.getCurrentUrl().contains("dynamic_content"), 
+                         "Should still be on dynamic content page after refresh");
+        
+        ReportProvider.info("Dynamic content test completed successfully");
     }
     
-    @Step("Test dashboard navigation links")
-    private void testNavigationLinks(DashboardPage dashboardPage) {
-        // Test Customer Info link
-        dashboardPage.clickCustomerInfo();
-        logger.info("Customer Info link clicked");
+    @Test(groups = {"smoke"}, priority = 5)
+    public void testJavaScriptAlerts() {
+        ReportProvider.info("Starting JavaScript alerts test");
         
-        // Test Orders link
-        dashboardPage.clickOrders();
-        logger.info("Orders link clicked");
+        // Navigate to JavaScript alerts page
+        driver.get("https://the-internet.herokuapp.com/javascript_alerts");
         
-        // Test Addresses link
-        dashboardPage.clickAddresses();
-        logger.info("Addresses link clicked");
-    }
-    
-    @Step("Perform logout")
-    private void performLogout(DashboardPage dashboardPage) {
-        dashboardPage.logout();
-        logger.info("Logout performed");
-    }
-    
-    @Step("Verify logout was successful")
-    private void verifyLogoutSuccessful() {
-        HomePage homePage = new HomePage();
-        Assert.assertTrue(homePage.getPageTitle().contains("nopCommerce"), 
-            "Should be redirected to home page after logout");
-        logger.info("Logout verification successful");
+        TheInternetElementsPage elementsPage = new TheInternetElementsPage();
+        
+        // Test JS Alert
+        elementsPage.clickJSAlert();
+        Alert alert = driver.switchTo().alert();
+        Assert.assertEquals(alert.getText(), "I am a JS Alert", "Alert text should match");
+        alert.accept();
+        
+        // Verify result
+        Assert.assertTrue(elementsPage.isAlertResultDisplayed(), "Alert result should be displayed");
+        Assert.assertTrue(elementsPage.getAlertResult().contains("You successfuly clicked an alert"), 
+                         "Alert result should indicate success");
+        
+        ReportProvider.info("JavaScript alerts test completed successfully");
     }
 }

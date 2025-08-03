@@ -1,27 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<suite name="Selenium Automation Framework Test Suite" verbose="1">
-    <listeners>
-        <listener class-name="com.epam.reportportal.testng.ReportPortalTestNGListener"/>
-        <listener class-name="com.automation.framework.listeners.TestListener"/>
-    </listeners>
+<suite name="Selenium Automation Test Suite" parallel="classes" thread-count="2" verbose="1">
     
-    <parameter name="browser" value="chrome"/>
+    <!-- The Internet Tests - Primary Test Suite -->
+    <test name="The Internet Tests" preserve-order="true">
+        <parameter name="browser" value="chrome"/>
+        <groups>
+            <run>
+                <include name="smoke"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.automation.framework.tests.TheInternetTests"/>
+        </classes>
+    </test>
     
-    <test name="API Tests">
+    <!-- Enhanced Tests with The Internet Site -->
+    <test name="Enhanced Login Tests" preserve-order="true">
+        <parameter name="browser" value="chrome"/>
+        <groups>
+            <run>
+                <include name="smoke"/>
+                <include name="regression"/>
+            </run>
+        </groups>
+        <classes>
+            <class name="com.automation.framework.tests.LoginTest"/>
+            <class name="com.automation.framework.tests.DashboardTest"/>
+        </classes>
+    </test>
+    
+    <!-- API Test Suite -->
+    <test name="API Tests" preserve-order="true">
+        <groups>
+            <run>
+                <include name="api"/>
+            </run>
+        </groups>
         <classes>
             <class name="com.automation.framework.tests.ApiTest"/>
         </classes>
     </test>
     
-    <test name="Login Tests">
+    <!-- Full Test Suite (All Tests) -->
+    <test name="All Tests" preserve-order="true">
+        <parameter name="browser" value="chrome"/>
         <classes>
+            <class name="com.automation.framework.tests.TheInternetTests"/>
             <class name="com.automation.framework.tests.LoginTest"/>
+            <class name="com.automation.framework.tests.DashboardTest"/>
+            <class name="com.automation.framework.tests.ApiTest"/>
         </classes>
     </test>
     
-    <test name="Dashboard Tests">
-        <classes>
-            <class name="com.automation.framework.tests.DashboardTest"/>
-        </classes>
-    </test>
 </suite>
