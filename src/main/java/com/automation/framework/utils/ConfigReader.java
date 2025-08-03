@@ -116,26 +116,32 @@ public class ConfigReader {
         
         // 1. Check system properties first (highest priority)
         value = System.getProperty(key);
-        if (value != null) {
+        if (value != null && !value.trim().isEmpty()) {
             source = "system properties";
             logger.debug("Property '{}' found in system properties: {}", key, value);
+        } else {
+            value = null; // Treat empty strings as null
         }
         
         // 2. Check environment variables
         if (value == null) {
             value = System.getenv(key);
-            if (value != null) {
+            if (value != null && !value.trim().isEmpty()) {
                 source = "environment variables";
                 logger.debug("Property '{}' found in environment variables: {}", key, value);
+            } else {
+                value = null; // Treat empty strings as null
             }
         }
         
         // 3. Check properties file
         if (value == null) {
             value = properties.getProperty(key);
-            if (value != null) {
+            if (value != null && !value.trim().isEmpty()) {
                 source = "properties file";
                 logger.debug("Property '{}' found in properties file: {}", key, value);
+            } else {
+                value = null; // Treat empty strings as null
             }
         }
         
