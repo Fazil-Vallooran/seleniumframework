@@ -48,7 +48,7 @@ public class TheInternetElementsPage extends BasePage {
     
     public TheInternetElementsPage() {
         super();
-        PageFactory.initElements(driver, this);
+        PageFactory.initElements(getDriver(), this);
     }
     
     // Dropdown methods

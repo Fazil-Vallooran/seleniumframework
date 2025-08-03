@@ -1,8 +1,10 @@
 package com.automation.framework.base;
 
+import org.openqa.selenium.WebDriver;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Parameters;
+import org.testng.annotations.Optional;
 import org.testng.annotations.AfterSuite;
 import com.automation.framework.utils.ConfigReader;
 import com.automation.framework.utils.ScreenshotUtils;
@@ -16,6 +18,8 @@ import com.automation.framework.utils.ReportProvider;
  * @version 2.0
  */
 public class BaseTest {
+    
+    protected WebDriver driver;
     
     @BeforeMethod
     @Parameters({"browser"})
@@ -47,30 +51,6 @@ public class BaseTest {
             ReportProvider.error("Critical error in test setup", e);
             throw new RuntimeException("Test setup failed: " + e.getMessage(), e);
         }
-    public void setUp(String browser) {
-        String browserName = (browser != null) ? browser : ConfigReader.getProperty("browser");
-        DriverManager.setDriver(browserName);
-        
-        // Use thread-local driver directly - no instance variable
-        DriverManager.getDriver().get(ConfigReader.getProperty("baseUrl"));
-        
-        ReportProvider.info("Test environment initialized with browser: " + browserName);
-    public void setUp(String browser) {
-        String browserName = (browser != null) ? browser : ConfigReader.getProperty("browser");
-        DriverManager.setDriver(browserName);
-        
-        // Use thread-local driver directly - no instance variable
-        DriverManager.getDriver().get(ConfigReader.getProperty("baseUrl"));
-        
-        ReportProvider.info("Test environment initialized with browser: " + browserName);
-    public void setUp(String browser) {
-        String browserName = (browser != null) ? browser : ConfigReader.getProperty("browser");
-        DriverManager.setDriver(browserName);
-        
-        // Use thread-local driver directly - no instance variable
-        DriverManager.getDriver().get(ConfigReader.getProperty("baseUrl"));
-        
-        ReportProvider.info("Test environment initialized with browser: " + browserName);
     }
     
     @AfterMethod

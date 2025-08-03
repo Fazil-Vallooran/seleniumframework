@@ -38,7 +38,7 @@ public class TheInternetHomePage extends BasePage {
     
     public TheInternetHomePage() {
         super();
-        PageFactory.initElements(driver, this);
+        PageFactory.initElements(getDriver(), this);
     }
     
     public String getPageTitle() {

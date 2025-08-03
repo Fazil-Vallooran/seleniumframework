@@ -36,7 +36,7 @@ public class TheInternetLoginPage extends BasePage {
     
     public TheInternetLoginPage() {
         super();
-        PageFactory.initElements(driver, this);
+        PageFactory.initElements(getDriver(), this);
     }
     
     public void enterUsername(String username) {
