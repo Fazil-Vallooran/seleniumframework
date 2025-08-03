@@ -26,7 +26,7 @@ public class LoginPage extends BasePage {
     
     public LoginPage() {
         super();
-        PageFactory.initElements(driver, this);
+        PageFactory.initElements(getDriver(), this);
     }
     
     public void clickLoginLink() {
