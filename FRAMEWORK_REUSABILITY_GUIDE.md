@@ -57,7 +57,7 @@ This implementation showcases my expertise in building **enterprise-grade, reusa
 
 ### **🏢 Multi-Team Framework Distribution**
 ```xml
-<!-- Team A: E-commerce Testing -->
+<!-- Team A: Web Application Testing -->
 <dependency>
     <groupId>com.automation</groupId>
     <artifactId>selenium-framework</artifactId>
@@ -71,32 +71,32 @@ This implementation showcases my expertise in building **enterprise-grade, reusa
     <version>1.1.5</version> <!-- Stable version for critical systems -->
 </dependency>
 
-<!-- Team C: Mobile App Testing -->
+<!-- Team C: SaaS Platform Testing -->
 <dependency>
     <groupId>com.automation</groupId>
     <artifactId>selenium-framework</artifactId>
-    <version>2.0.0-BETA</version> <!-- Latest with mobile capabilities -->
+    <version>1.2.0</version>
 </dependency>
 ```
 
 ### **🔧 Framework Consumer Implementation**
 ```java
 // Demonstrates: Clean API design, ease of adoption
-public class ECommerceProductTest extends BaseTest {
+public class WebAppUserJourneyTest extends BaseTest {
     
-    @Test(dataProvider = "productTestData")
-    public void validateProductPurchaseWorkflow(ProductData productData) {
+    @Test(dataProvider = "testData")
+    public void validateUserLoginAndPurchaseFlow(TestData testData) {
         // Framework provides all infrastructure - consumer focuses on business logic
         
         // Inherited from BaseTest: driver setup, reporting, screenshots
         loginPage.loginAs(testUser);
         
         // Framework provides page object foundation
-        productPage.searchForProduct(productData.getProductName());
-        productPage.addToCart(productData.getQuantity());
+        productPage.searchForProduct(testData.getProductName());
+        productPage.addToCart(testData.getQuantity());
         
         checkoutPage.proceedToCheckout();
-        checkoutPage.fillShippingDetails(productData.getShippingInfo());
+        checkoutPage.fillShippingDetails(testData.getShippingInfo());
         
         // Framework provides automatic reporting and validation
         assertThat("Order completed successfully", 
@@ -105,9 +105,9 @@ public class ECommerceProductTest extends BaseTest {
     }
     
     // Framework provides data provider infrastructure
-    @DataProvider(name = "productTestData")
-    public Object[][] getProductTestData() {
-        return ExcelDataProvider.loadTestData("ecommerce-products.xlsx", "ProductTests");
+    @DataProvider(name = "testData")
+    public Object[][] getTestData() {
+        return ExcelDataProvider.loadTestData("web-application-tests.xlsx", "TestScenarios");
     }
 }
 ```

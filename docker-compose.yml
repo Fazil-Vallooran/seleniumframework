@@ -98,8 +98,21 @@ services:
       - RP_DB_USER=rpuser
       - RP_DB_PASS=rppass
       - RP_DB_NAME=reportportal
+      - RP_ADMIN_USER=ophi
+      - RP_ADMIN_PASS=ophi@123
+      - RP_PROJECT_NAME=selenium_framework
     ports:
       - "8080:8080"
+    restart: always
+
+  reportportal-ui:
+    image: reportportal/service-ui:5.7.0
+    depends_on:
+      - reportportal
+    environment:
+      - RP_SERVER_PORT=8080
+    ports:
+      - "8081:8080"
     restart: always
 
   # Allure Report Server

@@ -24,118 +24,108 @@ This implementation example demonstrates how my **reusable automation framework*
 - 🔄 **Simplified Maintenance**: Framework updates benefit all consumers
 - 📈 **Scalable Growth**: Architecture supports business expansion
 
-## 🏗️ E-Commerce Implementation Architecture
+## 🏗️ The Internet Implementation Architecture
 
 ### **Clean Consumer Project Structure**
 ```
-🛒 E-Commerce Test Implementation
+🧪 The Internet Test Implementation
 ├── 📦 Dependency Management       # Single framework dependency
 │   └── pom.xml                   # Minimal configuration required
-├── 🧪 Business Test Logic        # Focus on business scenarios only
-│   ├── ProductCatalogTests       # Product search and filtering
-│   ├── ShoppingCartTests         # Cart management workflows
-│   └── CheckoutProcessTests      # Payment and order completion
-├── 📊 Business-Specific Data     # E-commerce test scenarios
-│   ├── product-catalog.xlsx      # Product test data
-│   ├── customer-profiles.json    # Customer personas
-│   └── checkout-scenarios.xml    # Payment workflows
-└── ⚙️ Environment Configuration   # Business-specific settings
-    ├── config.properties          # E-commerce app URLs, credentials
-    └── testng.xml                 # Business test suite organization
+├── 🧪 Business Test Logic        # Focus on web application scenarios
+│   ├── AuthenticationTests       # Login and logout workflows
+│   ├── UIElementTests            # Form controls and interactions
+│   └── DynamicContentTests       # Dynamic page content validation
+├── 📊 Business-Specific Data     # Test scenarios for web applications
+│   ├── login-credentials.xlsx    # Authentication test data
+│   ├── user-profiles.json        # User personas and test accounts
+│   └── test-scenarios.xml        # Various test workflows
+└── ⚙️ Environment Configuration   # Application-specific settings
+    ├── config.properties          # The Internet app URLs, test settings
+    └── testng.xml                 # Test suite organization
 ```
 
 ### **Professional Implementation Benefits**
 - **Single Dependency**: Only framework dependency needed - all tools included
-- **Business Focus**: Tests focus on e-commerce logic, not infrastructure
+- **Business Focus**: Tests focus on application logic, not infrastructure
 - **Instant Productivity**: Team productive from day one
 - **Standardized Practices**: Consistent patterns across all test projects
 
 ## 💼 Real-World Business Implementation
 
-### **🛒 E-Commerce Business Test Scenarios**
+### **🧪 The Internet Business Test Scenarios**
 ```java
 // Demonstrates: Business-focused testing, framework value delivery
-public class ProductCatalogTest extends BaseTest {
+public class AuthenticationTest extends BaseTest {
     
-    @Test(dataProvider = "productSearchData")
-    public void validateProductSearchFunctionality(ProductSearchData searchData) {
+    @Test(dataProvider = "loginData")
+    public void validateLoginFunctionality(LoginData loginData) {
         // Framework handles all infrastructure - focus on business logic
         
         // Inherited capabilities: WebDriver setup, reporting, screenshots
-        homePage.navigateToProductCatalog();
+        homePage.navigateToLoginPage();
         
         // Framework provides page object foundation
-        productCatalogPage.searchForProduct(searchData.getSearchTerm());
-        productCatalogPage.applyFilters(searchData.getFilters());
+        loginPage.enterUsername(loginData.getUsername());
+        loginPage.enterPassword(loginData.getPassword());
+        loginPage.submit();
         
         // Framework provides automatic validation and reporting
-        List<Product> searchResults = productCatalogPage.getSearchResults();
+        boolean isLoginSuccessful = homePage.isUserLoggedIn();
         
         // Business validation with framework reporting
-        assertThat("Search returns relevant products", 
-            searchResults.size(), 
-            greaterThan(0));
-            
-        assertThat("All products match search criteria",
-            searchResults.stream().allMatch(p -> 
-                p.matchesSearchCriteria(searchData.getSearchTerm())),
+        assertThat("User is logged in successfully", 
+            isLoginSuccessful, 
             equalTo(true));
-        
+            
         // Framework automatically captures evidence and metrics
     }
     
     // Framework provides data provider infrastructure
-    @DataProvider(name = "productSearchData")
-    public Object[][] getProductSearchData() {
-        return ExcelDataProvider.loadTestData("product-catalog.xlsx", "SearchScenarios");
+    @DataProvider(name = "loginData")
+    public Object[][] getLoginData() {
+        return ExcelDataProvider.loadTestData("login-credentials.xlsx", "LoginScenarios");
     }
 }
 ```
 
-### **🛒 Shopping Cart Workflow Implementation**
+### **🧪 Dynamic Content Workflow Implementation**
 ```java
 // Demonstrates: Complex business workflow testing with framework support
-public class ShoppingCartTest extends BaseTest {
+public class DynamicContentTest extends BaseTest {
     
     @Test(groups = "regression")
-    public void validateEndToEndPurchaseWorkflow() {
+    public void validateDynamicContentLoading() {
         // Framework provides complete testing infrastructure
         
-        ReportProvider.startFeature("End-to-End Purchase Workflow");
+        ReportProvider.startFeature("Dynamic Content Loading Validation");
         
         try {
-            // Step 1: Product Discovery
-            ReportProvider.startStep("Product Discovery Phase");
-            homePage.navigateToProductCatalog();
-            productCatalogPage.searchForProduct("laptop");
-            Product selectedProduct = productCatalogPage.selectFirstProduct();
+            // Step 1: Navigate to Dynamic Content Page
+            ReportProvider.startStep("Navigate to Dynamic Content Page");
+            homePage.navigateToDynamicContentPage();
             ReportProvider.finishStep(StepStatus.PASSED);
             
-            // Step 2: Cart Management
-            ReportProvider.startStep("Shopping Cart Management");
-            productDetailPage.addToCart(2); // quantity
-            cartPage.navigateToCart();
+            // Step 2: Validate Dynamic Content
+            ReportProvider.startStep("Validate Dynamic Content Visibility");
+            boolean isContentVisible = dynamicContentPage.isContentVisible();
             
             // Framework provides automatic validation utilities
-            assertThat("Product added to cart successfully",
-                cartPage.getCartItems().size(),
-                equalTo(1));
+            assertThat("Dynamic content is visible",
+                isContentVisible,
+                equalTo(true));
             ReportProvider.finishStep(StepStatus.PASSED);
             
-            // Step 3: Checkout Process
-            ReportProvider.startStep("Secure Checkout Process");
-            checkoutPage.proceedToCheckout();
-            checkoutPage.fillShippingInformation(getTestCustomer().getShippingInfo());
-            checkoutPage.selectPaymentMethod(PaymentMethod.CREDIT_CARD);
-            checkoutPage.fillPaymentDetails(getTestPaymentDetails());
+            // Step 3: Interact with Dynamic Elements
+            ReportProvider.startStep("Interact with Dynamic Elements");
+            dynamicContentPage.clickRefreshButton();
             
             // Framework handles screenshot capture and performance monitoring
-            Order completedOrder = checkoutPage.completeOrder();
+            List<String> contentAfterRefresh = dynamicContentPage.getContentTexts();
             
             // Business validation with framework reporting integration
-            assertThat("Order completed successfully",
-                completedOrder.getStatus(),
-                equalTo(OrderStatus.CONFIRMED));
+            assertThat("Dynamic content updates on refresh",
+                contentAfterRefresh.size(),
+                greaterThan(0));
                 
             ReportProvider.finishStep(StepStatus.PASSED);
             
@@ -153,39 +143,43 @@ public class ShoppingCartTest extends BaseTest {
 ### **📊 API + UI Integration Testing**
 ```java
 // Demonstrates: Full-stack testing capabilities
-public class IntegratedECommerceTest extends BaseTest {
+public class IntegratedWebTest extends BaseTest {
     
     @Test
-    public void validateOrderConsistencyAcrossChannels() {
+    public void validateUserRegistrationAndLogin() {
         // Framework enables seamless API + UI testing
         
-        // 1. Create order via API (backend validation)
-        OrderRequest orderRequest = OrderRequest.builder()
-            .customerId(testCustomer.getId())
-            .products(Arrays.asList(testProduct))
-            .shippingAddress(testCustomer.getShippingAddress())
+        // 1. Register user via API (backend validation)
+        UserRegistrationRequest registrationRequest = UserRegistrationRequest.builder()
+            .username("testuser")
+            .password("password123")
+            .email("testuser@example.com")
             .build();
             
         // Framework provides API testing capabilities
         Response apiResponse = apiClient
-            .post("/api/orders")
-            .withBody(orderRequest)
+            .post("/api/register")
+            .withBody(registrationRequest)
             .withHeaders(getApiHeaders())
             .execute();
             
-        String orderId = apiResponse.jsonPath().getString("orderId");
-        
-        // 2. Validate order appears in UI (frontend validation)
-        loginPage.loginAsCustomer(testCustomer);
-        orderHistoryPage.navigateToOrderHistory();
+        // 2. Validate user can log in via UI (frontend validation)
+        loginPage.navigateToLoginPage();
+        loginPage.enterUsername("testuser");
+        loginPage.enterPassword("password123");
+        loginPage.submit();
         
         // 3. Cross-validate API and UI data consistency
-        Order apiOrder = apiClient.get("/api/orders/" + orderId).as(Order.class);
-        Order uiOrder = orderHistoryPage.getOrderDetails(orderId);
+        User apiUser = apiClient.get("/api/users/testuser").as(User.class);
+        boolean isUserLoggedIn = homePage.isUserLoggedIn();
         
         // Framework provides comprehensive validation utilities
-        assertThat("API and UI order data consistency",
-            OrderComparator.areEquivalent(apiOrder, uiOrder),
+        assertThat("API and UI user data consistency",
+            apiUser.getUsername(),
+            equalTo("testuser"));
+        
+        assertThat("User is logged in successfully",
+            isUserLoggedIn,
             equalTo(true));
         
         // Framework automatically generates cross-platform test reports
@@ -201,8 +195,8 @@ public class IntegratedECommerceTest extends BaseTest {
 <project>
     <modelVersion>4.0.0</modelVersion>
     
-    <groupId>com.ecommerce</groupId>
-    <artifactId>ecommerce-tests</artifactId>
+    <groupId>com.theinternet</groupId>
+    <artifactId>theinternet-tests</artifactId>
     <version>1.0.0</version>
     
     <dependencies>
@@ -228,7 +222,7 @@ public class IntegratedECommerceTest extends BaseTest {
 ### **📈 Business Value Metrics**
 ```java
 // Quantifiable business benefits from framework adoption
-public class ECommerceProjectMetrics {
+public class WebProjectMetrics {
     
     public ProjectSuccess calculateFrameworkValue() {
         return ProjectSuccess.builder()
@@ -276,7 +270,7 @@ public class ECommerceProjectMetrics {
 
 ## 🎯 Why This Implementation Example Stands Out
 
-This e-commerce case study demonstrates my ability to:
+This web application case study demonstrates my ability to:
 
 1. **Create Valuable Software Assets**: Framework provides immediate, measurable business value
 2. **Enable Team Productivity**: Remove complexity barriers to focus on business logic

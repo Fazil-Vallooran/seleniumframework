@@ -4,8 +4,8 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import com.automation.framework.base.BaseTest;
-import com.automation.framework.pages.HomePage;
-import com.automation.framework.pages.LoginPage;
+import com.automation.framework.pages.TheInternetHomePage;
+import com.automation.framework.pages.TheInternetLoginPage;
 import com.automation.framework.data.JsonDataProvider;
 import com.automation.framework.data.XmlDataProvider;
 import com.automation.framework.data.ExcelDataProvider;
@@ -63,8 +63,10 @@ public class LoginTest extends BaseTest {
         ReportProvider.info("Starting test case: " + testCaseId);
         ReportProvider.logTestData("Login Test Data", testData);
         
-        HomePage homePage = new HomePage();
-        LoginPage loginPage = new LoginPage();
+        // Navigate to the login page directly
+        driver.get("https://the-internet.herokuapp.com/login");
+        
+        TheInternetLoginPage loginPage = new TheInternetLoginPage();
         
         // Extract test data
         String username = (String) testData.get("username");
@@ -75,7 +77,7 @@ public class LoginTest extends BaseTest {
         ReportProvider.info("Test Description: " + description);
         
         // Perform test steps with detailed reporting
-        performLoginTestWithReporting(homePage, loginPage, username, password, expectedResult, description);
+        performLoginTestWithReporting(loginPage, username, password, expectedResult, description);
         
         ReportProvider.info("JSON data-driven test completed successfully: " + testCaseId);
         ReportProvider.finishStep(StepStatus.PASSED);
@@ -93,8 +95,10 @@ public class LoginTest extends BaseTest {
         ReportProvider.info("Test Priority: " + priority + " | Environment: " + environment);
         ReportProvider.logTestData("XML Test Data", testData);
         
-        HomePage homePage = new HomePage();
-        LoginPage loginPage = new LoginPage();
+        // Navigate to the login page directly
+        driver.get("https://the-internet.herokuapp.com/login");
+        
+        TheInternetLoginPage loginPage = new TheInternetLoginPage();
         
         // Extract test data
         String username = testData.get("username");
@@ -103,7 +107,7 @@ public class LoginTest extends BaseTest {
         String description = testData.get("description");
         
         // Perform test steps
-        performLoginTestWithReporting(homePage, loginPage, username, password, expectedResult, description);
+        performLoginTestWithReporting(loginPage, username, password, expectedResult, description);
         
         ReportProvider.info("XML data-driven test completed: " + testCaseId);
         ReportProvider.finishStep(StepStatus.PASSED);
@@ -120,9 +124,6 @@ public class LoginTest extends BaseTest {
             "positive"
         );
         
-        HomePage homePage = new HomePage();
-        LoginPage loginPage = new LoginPage();
-        
         for (Map<String, Object> testData : positiveTests) {
             String username = (String) testData.get("username");
             String password = (String) testData.get("password");
@@ -130,7 +131,12 @@ public class LoginTest extends BaseTest {
             String description = (String) testData.get("description");
             
             logger.info("Executing positive test: " + testData.get("testCaseId"));
-            performLoginTest(homePage, loginPage, username, password, expectedResult, description);
+            
+            // Navigate to login page for each test case
+            driver.get("https://the-internet.herokuapp.com/login");
+            TheInternetLoginPage loginPage = new TheInternetLoginPage();
+            
+            performLoginTest(loginPage, username, password, expectedResult, description);
         }
         
         logger.info("All positive login scenarios completed");
@@ -148,9 +154,6 @@ public class LoginTest extends BaseTest {
             "high"
         );
         
-        HomePage homePage = new HomePage();
-        LoginPage loginPage = new LoginPage();
-        
         for (Map<String, String> testData : highPriorityTests) {
             String username = testData.get("username");
             String password = testData.get("password");
@@ -158,42 +161,97 @@ public class LoginTest extends BaseTest {
             String description = testData.get("description");
             
             logger.info("Executing high priority test: " + testData.get("@id"));
-            performLoginTest(homePage, loginPage, username, password, expectedResult, description);
+            
+            // Navigate to login page for each test case
+            driver.get("https://the-internet.herokuapp.com/login");
+            TheInternetLoginPage loginPage = new TheInternetLoginPage();
+            
+            performLoginTest(loginPage, username, password, expectedResult, description);
         }
         
         logger.info("All high priority scenarios completed");
     }
     
+    @Test(groups = {"smoke", "regression"}, priority = 1)
+    public void testValidLogin() {
+        ReportProvider.info("Starting valid login test with The Internet");
+        
+        // Navigate to form authentication page
+        driver.get("https://the-internet.herokuapp.com/login");
+        
+        TheInternetLoginPage loginPage = new TheInternetLoginPage();
+        
+        // Verify login form is displayed
+        Assert.assertTrue(loginPage.isLoginFormDisplayed(), "Login form should be displayed");
+        
+        // Perform valid login
+        loginPage.performValidLogin();
+        
+        // Verify successful login
+        Assert.assertTrue(loginPage.isUserLoggedIn(), "User should be logged in successfully");
+        Assert.assertTrue(loginPage.getSuccessMessage().contains("You logged into a secure area!"), 
+                         "Success message should be displayed");
+        
+        ReportProvider.info("Valid login test completed successfully");
+    }
+    
+    @Test(groups = {"regression"}, priority = 2)
+    public void testInvalidLogin() {
+        ReportProvider.info("Starting invalid login test");
+        
+        driver.get("https://the-internet.herokuapp.com/login");
+        
+        TheInternetLoginPage loginPage = new TheInternetLoginPage();
+        
+        // Test with invalid credentials
+        loginPage.performLogin("invaliduser", "wrongpassword");
+        
+        // Verify error message
+        Assert.assertTrue(loginPage.isErrorMessageDisplayed(), "Error message should be displayed");
+        Assert.assertTrue(loginPage.getErrorMessage().contains("Your username is invalid!"), 
+                         "Error message should indicate invalid username");
+        
+        ReportProvider.info("Invalid login test completed successfully");
+    }
+    
+    @Test(groups = {"smoke"}, priority = 3)
+    public void testLoginPageElements() {
+        ReportProvider.info("Starting login page elements test");
+        
+        driver.get("https://the-internet.herokuapp.com/login");
+        
+        TheInternetLoginPage loginPage = new TheInternetLoginPage();
+        
+        // Verify all login form elements are present
+        Assert.assertTrue(loginPage.isLoginFormDisplayed(), "Login form should be displayed");
+        Assert.assertEquals(loginPage.getPageTitle(), "Login Page", "Page title should be 'Login Page'");
+        
+        ReportProvider.info("Login page elements test completed successfully");
+    }
+    
     @Step("Perform login test with enhanced reporting")
-    private void performLoginTestWithReporting(HomePage homePage, LoginPage loginPage, 
+    private void performLoginTestWithReporting(TheInternetLoginPage loginPage, 
                                              String username, String password, 
                                              String expectedResult, String description) {
         
         ReportProvider.startStep("Login Test Execution", description);
         
         try {
-            // Step 1: Verify home page
-            ReportProvider.startStep("Home Page Verification");
-            ReportProvider.logUiAction("Verify", "Home page logo");
-            boolean logoDisplayed = homePage.isLogoDisplayed();
-            ReportProvider.logUiVerification("Logo is displayed", logoDisplayed);
-            Assert.assertTrue(logoDisplayed, "Home page logo should be displayed");
+            // Step 1: Verify login page is loaded
+            ReportProvider.startStep("Login Page Verification");
+            ReportProvider.logUiAction("Verify", "Login form elements");
+            boolean formDisplayed = loginPage.isLoginFormDisplayed();
+            ReportProvider.logUiVerification("Login form is displayed", formDisplayed);
+            Assert.assertTrue(formDisplayed, "Login form should be displayed");
             ReportProvider.finishStep(StepStatus.PASSED);
             
-            // Step 2: Navigate to login page
-            ReportProvider.startStep("Navigate to Login Page");
-            ReportProvider.logUiAction("Click", "Login link");
-            homePage.clickLoginLink();
-            ReportProvider.info("Successfully navigated to login page");
-            ReportProvider.finishStep(StepStatus.PASSED);
-            
-            // Step 3: Enter credentials
+            // Step 2: Enter credentials
             ReportProvider.startStep("Enter Login Credentials");
             ReportProvider.info("Entering username: " + username);
             ReportProvider.debug("Password length: " + password.length() + " characters");
             
-            loginPage.enterEmail(username);
-            ReportProvider.logUiAction("Enter text", "Email field");
+            loginPage.enterUsername(username);
+            ReportProvider.logUiAction("Enter text", "Username field");
             
             loginPage.enterPassword(password);
             ReportProvider.logUiAction("Enter text", "Password field");
@@ -202,7 +260,7 @@ public class LoginTest extends BaseTest {
             ReportProvider.logUiAction("Click", "Login button");
             ReportProvider.finishStep(StepStatus.PASSED);
             
-            // Step 4: Verify result
+            // Step 3: Verify result
             ReportProvider.startStep("Verify Login Result", "Expected: " + expectedResult);
             
             if ("success".equals(expectedResult)) {
@@ -222,22 +280,22 @@ public class LoginTest extends BaseTest {
         }
     }
     
-    private void verifySuccessfulLoginWithReporting(LoginPage loginPage) {
+    private void verifySuccessfulLoginWithReporting(TheInternetLoginPage loginPage) {
         ReportProvider.info("Verifying successful login indicators");
         
-        boolean logoutLinkDisplayed = loginPage.isLogoutLinkDisplayed();
-        ReportProvider.logUiVerification("Logout link is displayed", logoutLinkDisplayed);
+        boolean logoutButtonDisplayed = loginPage.isLogoutButtonDisplayed();
+        ReportProvider.logUiVerification("Logout button is displayed", logoutButtonDisplayed);
         
-        if (logoutLinkDisplayed) {
+        if (logoutButtonDisplayed) {
             ReportProvider.info("✅ Login successful - user authenticated");
         } else {
-            ReportProvider.error("❌ Login failed - logout link not found");
+            ReportProvider.error("❌ Login failed - logout button not found");
         }
         
-        Assert.assertTrue(logoutLinkDisplayed, "Logout link should be displayed after successful login");
+        Assert.assertTrue(logoutButtonDisplayed, "Logout button should be displayed after successful login");
     }
     
-    private void verifyLoginFailureWithReporting(LoginPage loginPage) {
+    private void verifyLoginFailureWithReporting(TheInternetLoginPage loginPage) {
         ReportProvider.info("Verifying login failure indicators");
         
         String errorMessage = loginPage.getErrorMessage();
@@ -256,18 +314,17 @@ public class LoginTest extends BaseTest {
     }
     
     @Step("Perform login test with data: {username}, expected: {expectedResult}")
-    private void performLoginTest(HomePage homePage, LoginPage loginPage, 
+    private void performLoginTest(TheInternetLoginPage loginPage, 
                                 String username, String password, 
                                 String expectedResult, String description) {
         
         logger.info("Test Description: " + description);
         
-        // Navigate to login page
-        verifyHomePageLoaded(homePage);
-        homePage.clickLoginLink();
+        // Verify login form is displayed
+        Assert.assertTrue(loginPage.isLoginFormDisplayed(), "Login form should be displayed");
         
         // Perform login
-        loginPage.enterEmail(username);
+        loginPage.enterUsername(username);
         loginPage.enterPassword(password);
         loginPage.clickLoginButton();
         
@@ -279,23 +336,19 @@ public class LoginTest extends BaseTest {
         }
     }
     
-    @Step("Verify home page is loaded")
-    private void verifyHomePageLoaded(HomePage homePage) {
-        Assert.assertTrue(homePage.isLogoDisplayed(), "Home page logo should be displayed");
-        logger.info("Home page verified");
-    }
-    
     @Step("Verify successful login")
-    private void verifySuccessfulLogin(LoginPage loginPage) {
-        Assert.assertTrue(loginPage.isLogoutLinkDisplayed(), 
-            "Logout link should be displayed after successful login");
+    private void verifySuccessfulLogin(TheInternetLoginPage loginPage) {
+        Assert.assertTrue(loginPage.isLogoutButtonDisplayed(), 
+            "Logout button should be displayed after successful login");
+        Assert.assertTrue(loginPage.isSuccessMessageDisplayed(),
+            "Success message should be displayed after successful login");
         logger.info("Login success verified");
     }
     
     @Step("Verify login failure")
-    private void verifyLoginFailure(LoginPage loginPage) {
+    private void verifyLoginFailure(TheInternetLoginPage loginPage) {
         String errorMessage = loginPage.getErrorMessage();
-        Assert.assertTrue(errorMessage.contains("unsuccessful") || errorMessage.contains("invalid"), 
+        Assert.assertTrue(errorMessage.contains("username is invalid") || errorMessage.contains("password is invalid"), 
             "Error message should indicate login failure");
         logger.info("Login failure verified: " + errorMessage);
     }
