@@ -26,7 +26,7 @@ public class DashboardPage extends BasePage {
     
     public DashboardPage() {
         super();
-        PageFactory.initElements(driver, this);
+        PageFactory.initElements(getDriver(), this);
     }
     
     public boolean isAccountNavigationDisplayed() {

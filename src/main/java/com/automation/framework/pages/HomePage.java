@@ -29,7 +29,7 @@ public class HomePage extends BasePage {
     
     public HomePage() {
         super();
-        PageFactory.initElements(driver, this);
+        PageFactory.initElements(getDriver(), this);
     }
     
     public boolean isLogoDisplayed() {
@@ -58,6 +58,6 @@ public class HomePage extends BasePage {
     }
     
     public String getPageTitle() {
-        return driver.getTitle();
+        return super.getPageTitle();
     }
 }
