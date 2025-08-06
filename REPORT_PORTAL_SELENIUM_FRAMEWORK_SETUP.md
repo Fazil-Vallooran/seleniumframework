@@ -1,140 +1,375 @@
-# Report Portal Setup Guide - Selenium Framework
+# 🎯 ReportPortal Integration Guide
 
-## 🎯 **Configuration Summary**
-- **Project Name**: selenium_framework
-- **Login Username**: ophi
-- **Login Password**: ophi@123
-- **Report Portal URL**: http://localhost:8080
-- **Report Portal UI**: http://localhost:8081
+**Complete setup guide for integrating Java/TestNG tests with ReportPortal analytics platform**
 
-## 🚀 **Quick Start Steps**
+---
 
-### 1. Start Report Portal Services
-```bash
-# Start all services including Report Portal
-docker-compose up -d reportportal-db reportportal reportportal-ui
+## 📋 Quick Setup Overview
 
-# Check if services are running
-docker-compose ps
-```
+This guide demonstrates how to integrate your Java/TestNG automation framework with ReportPortal for comprehensive test analytics and reporting.
 
-### 2. Access Report Portal UI
-1. Open your browser and go to: **http://localhost:8081**
-2. Login with:
-   - **Username**: `ophi`
-   - **Password**: `ophi@123`
+### **🏗️ Current Architecture**
 
-### 3. Create/Verify Project
-1. After login, navigate to **Projects**
-2. Look for project named **"selenium_framework"**
-3. If not exists, create it with name: `selenium_framework`
-
-### 4. Get Project UUID (Important!)
-1. Go to **Project Settings** → **General**
-2. Copy the **Project UUID**
-3. Update the UUID in your config files:
-
-**File: `src/main/resources/config.properties`**
-```properties
-rp.uuid=YOUR_ACTUAL_PROJECT_UUID_HERE
-```
-
-**File: `src/test/resources/reportportal.properties`**
-```properties
-rp.uuid = YOUR_ACTUAL_PROJECT_UUID_HERE
-```
-
-## 🧪 **Running Tests with Report Portal**
-
-### Option 1: Local Execution
-```bash
-# Run tests with Report Portal enabled
-mvn test -Drp.enable=true
-
-# Run specific test suite
-mvn test -Dtest=LoginTest -Drp.enable=true
-```
-
-### Option 2: Docker Execution
-```bash
-# Start all services including test execution
-docker-compose up --build
-
-# Or run specific services
-docker-compose up -d reportportal-db reportportal reportportal-ui
-docker-compose up test-runner
-```
-
-## 📊 **Viewing Reports**
-
-### Access Your Reports
-1. Go to **http://localhost:8081**
-2. Login with `ophi` / `ophi@123`
-3. Select project **"selenium_framework"**
-4. View your test launches under **Launches** tab
-
-### Report Features Available
-- ✅ **Test Execution Results** - Pass/Fail status
-- ✅ **Screenshots** - Automatic capture on failures
-- ✅ **Logs** - Detailed test execution logs
-- ✅ **Trends Analysis** - Historical test data
-- ✅ **Defect Analysis** - Issue categorization
-
-## 🔧 **Configuration Files Updated**
-
-### config.properties
-```properties
-rp.endpoint=http://localhost:8080
-rp.uuid=selenium-framework-uuid-12345
-rp.launch=selenium-automation-tests
-rp.project=selenium_framework
-rp.enable=true
-```
-
-### reportportal.properties
-```properties
-rp.project = selenium_framework
-rp.launch = selenium-automation-tests
-rp.enable = true
-rp.description = Selenium Framework Test Execution
-```
-
-### docker-compose.yml
 ```yaml
-reportportal:
-  environment:
-    - RP_ADMIN_USER=ophi
-    - RP_ADMIN_PASS=ophi@123
-    - RP_PROJECT_NAME=selenium_framework
+📊 ReportPortal Platform
+├── 🌐 Core Services
+│   ├── Gateway (Traefik) - Port 8080/8081
+│   ├── API Service - Core business logic
+│   ├── UI Service - Web interface
+│   ├── UAT Service - Authentication
+│   ├── Jobs Service - Background processing
+│   └── Index Service - Data indexing
+├── 📈 Analytics Stack
+│   ├── Auto Analyzer - ML-powered analysis
+│   ├── Analyzer Training - Model training
+│   └── OpenSearch - Search engine
+└── 🗄️ Data Layer
+    ├── PostgreSQL - Test metadata
+    ├── RabbitMQ - Message queue
+    └── File Storage - Screenshots/logs
 ```
 
-## 🎯 **Important Notes**
+## 🚀 Platform Startup
 
-1. **First Login**: Use `ophi` / `ophi@123` credentials
-2. **Project UUID**: Must be copied from Report Portal UI after project creation
-3. **Project Name**: Will appear as "selenium_framework" in the UI
-4. **Ports**: 
-   - API: `8080`
-   - UI: `8081`
-5. **Database**: PostgreSQL data persisted in Docker volume
+### **Start ReportPortal Services**
+```bash
+# Start all ReportPortal services
+docker-compose up -d
 
-## 🚨 **Troubleshooting**
+# Check service status
+docker-compose ps
 
-### If Report Portal doesn't show your project:
-1. Check if `rp.enable=true` in your properties
-2. Verify the correct UUID is set
-3. Ensure the project name matches exactly: `selenium_framework`
+# View logs
+docker-compose logs -f
+```
 
-### If tests don't appear in Report Portal:
-1. Check container logs: `docker-compose logs reportportal`
-2. Verify TestNG listener is configured in your tests
-3. Ensure network connectivity between test runner and Report Portal
+### **Access Points**
+- **ReportPortal UI**: http://localhost:8080
+- **Traefik Dashboard**: http://localhost:8081
+- **Default Login**: 
+  - Username: `superadmin`
+  - Password: `erebus`
 
-## 🎉 **You're All Set!**
+## 🔧 Java Integration Setup
 
-Your Report Portal is now configured with:
-- **Username**: ophi
-- **Password**: ophi@123
-- **Project**: selenium_framework
+### **1. Maven Dependencies**
+```xml
+<!-- ReportPortal TestNG Integration -->
+<dependency>
+    <groupId>com.epam.reportportal</groupId>
+    <artifactId>agent-java-testng</artifactId>
+    <version>5.1.4</version>
+</dependency>
 
-Start your services and begin testing with comprehensive reporting!
+<!-- ReportPortal Logger -->
+<dependency>
+    <groupId>com.epam.reportportal</groupId>
+    <artifactId>logger-java-logback</artifactId>
+    <version>5.1.5</version>
+</dependency>
+```
+
+### **2. Configuration Files**
+
+**reportportal.properties**
+```properties
+# ReportPortal server configuration
+rp.endpoint=http://localhost:8080
+rp.api.key=your-api-key-here
+rp.launch=Selenium Framework Tests
+rp.project=selenium_framework
+
+# Test execution settings
+rp.reporting.async=true
+rp.reporting.callback=true
+rp.enable=true
+
+# Test attributes and descriptions
+rp.attributes=selenium;regression;smoke
+rp.description=Automated UI tests using Selenium WebDriver
+
+# Logging configuration
+rp.log.level=INFO
+rp.reporting.timeout=60
+```
+
+**logback.xml** (for ReportPortal logging)
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- ReportPortal appender -->
+    <appender name="ReportPortalAppender" class="com.epam.reportportal.logback.appender.ReportPortalAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%t] %-5level - %msg%n</pattern>
+        </encoder>
+    </appender>
+    
+    <!-- Console appender -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    
+    <!-- Root logger -->
+    <root level="INFO">
+        <appender-ref ref="ReportPortalAppender"/>
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>
+```
+
+### **3. TestNG Configuration**
+
+**testng.xml**
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<suite name="ReportPortal Integration Suite" parallel="methods" thread-count="3">
+    <listeners>
+        <!-- ReportPortal TestNG listener -->
+        <listener class-name="com.epam.reportportal.testng.ReportPortalTestNGListener"/>
+    </listeners>
+    
+    <test name="Selenium Framework Tests">
+        <classes>
+            <class name="com.framework.tests.LoginTests"/>
+            <class name="com.framework.tests.DashboardTests"/>
+            <class name="com.framework.tests.UserManagementTests"/>
+        </classes>
+    </test>
+</suite>
+```
+
+## 📊 Enhanced Reporting Integration
+
+### **1. Custom Test Reporting**
+```java
+import com.epam.reportportal.service.ReportPortal;
+import com.epam.reportportal.utils.reflect.Accessible;
+import com.epam.ta.reportportal.ws.model.log.SaveLogRQ;
+
+public class ReportPortalLogger {
+    
+    private static final ReportPortal reportPortal = ReportPortal.builder().build();
+    
+    public static void logInfo(String message) {
+        reportPortal.getStepReporter().sendLog(message, "INFO", new Date());
+    }
+    
+    public static void logError(String message, Throwable throwable) {
+        reportPortal.getStepReporter().sendLog(message, "ERROR", new Date(), throwable);
+    }
+    
+    public static void attachScreenshot(String screenshotPath) {
+        try {
+            byte[] screenshot = Files.readAllBytes(Paths.get(screenshotPath));
+            ReportPortal.emitLog("Screenshot attached", "INFO", new Date(), 
+                ReportPortal.createFileAttachment("image/png", screenshot));
+        } catch (IOException e) {
+            logError("Failed to attach screenshot", e);
+        }
+    }
+}
+```
+
+### **2. Test Class Integration**
+```java
+@Listeners({ReportPortalTestNGListener.class})
+public class BaseTest {
+    
+    protected WebDriver driver;
+    
+    @BeforeMethod
+    public void setUp() {
+        ReportPortalLogger.logInfo("Test setup started");
+        
+        // Initialize WebDriver
+        driver = DriverManager.getDriver();
+        ReportPortalLogger.logInfo("WebDriver initialized: " + driver.getClass().getSimpleName());
+    }
+    
+    @AfterMethod
+    public void tearDown(ITestResult result) {
+        if (result.getStatus() == ITestResult.FAILURE) {
+            // Capture screenshot on failure
+            String screenshotPath = ScreenshotUtils.captureScreenshot(driver, result.getMethod().getMethodName());
+            ReportPortalLogger.attachScreenshot(screenshotPath);
+            ReportPortalLogger.logError("Test failed: " + result.getThrowable().getMessage(), result.getThrowable());
+        }
+        
+        DriverManager.quitDriver();
+        ReportPortalLogger.logInfo("Test cleanup completed");
+    }
+}
+```
+
+### **3. Enhanced Test Execution**
+```java
+public class LoginTests extends BaseTest {
+    
+    @Test(description = "Verify successful login with valid credentials")
+    @Attributes(attributes = {@Attribute(key = "TestType", value = "Smoke")})
+    public void testSuccessfulLogin() {
+        ReportPortalLogger.logInfo("Starting login test with valid credentials");
+        
+        try {
+            // Test steps with detailed logging
+            ReportPortalLogger.logInfo("Navigating to login page");
+            driver.get("https://example.com/login");
+            
+            LoginPage loginPage = new LoginPage(driver);
+            
+            ReportPortalLogger.logInfo("Entering credentials");
+            loginPage.enterUsername("testuser@example.com");
+            loginPage.enterPassword("validPassword123");
+            
+            ReportPortalLogger.logInfo("Clicking login button");
+            loginPage.clickLoginButton();
+            
+            // Verification with reporting
+            DashboardPage dashboard = new DashboardPage(driver);
+            Assert.assertTrue(dashboard.isDashboardDisplayed(), "Dashboard should be displayed after login");
+            
+            ReportPortalLogger.logInfo("Login test completed successfully");
+            
+        } catch (Exception e) {
+            ReportPortalLogger.logError("Login test failed", e);
+            throw e;
+        }
+    }
+}
+```
+
+## 🔧 Advanced Configuration
+
+### **1. Custom Launch Attributes**
+```java
+// Add custom attributes to test launches
+@BeforeSuite
+public void setLaunchAttributes() {
+    System.setProperty("rp.attributes", 
+        "env:" + ConfigReader.getEnvironment() + 
+        ";browser:" + ConfigReader.getBrowser() + 
+        ";build:" + System.getProperty("build.number", "local"));
+}
+```
+
+### **2. Dynamic Project Configuration**
+```java
+public class ReportPortalConfig {
+    
+    public static void configureDynamicProperties() {
+        // Dynamic project configuration based on environment
+        String environment = System.getProperty("test.env", "dev");
+        String project = "selenium_framework_" + environment;
+        
+        System.setProperty("rp.project", project);
+        System.setProperty("rp.launch", "Automated Tests - " + environment.toUpperCase());
+        
+        // Add environment-specific attributes
+        String attributes = "env:" + environment + ";execution:automated;framework:selenium";
+        System.setProperty("rp.attributes", attributes);
+    }
+}
+```
+
+## 📈 Analytics and Reporting Features
+
+### **1. Real-Time Test Monitoring**
+- Live test execution tracking
+- Immediate failure notifications
+- Resource utilization monitoring
+- Performance metrics collection
+
+### **2. Historical Analytics**
+- Test execution trends
+- Failure pattern analysis
+- Performance regression detection
+- Quality metrics over time
+
+### **3. ML-Powered Insights**
+- Automatic failure categorization
+- Flaky test identification
+- Root cause analysis suggestions
+- Predictive quality analytics
+
+## 🎯 Best Practices
+
+### **1. Logging Strategy**
+```java
+public class SmartLogger {
+    
+    public static void logTestStep(String step, Object... parameters) {
+        String message = String.format(step, parameters);
+        ReportPortalLogger.logInfo("STEP: " + message);
+    }
+    
+    public static void logBusinessAction(String action) {
+        ReportPortalLogger.logInfo("BUSINESS ACTION: " + action);
+    }
+    
+    public static void logTechnicalDetail(String detail) {
+        ReportPortalLogger.logInfo("TECHNICAL: " + detail);
+    }
+}
+```
+
+### **2. Screenshot Management**
+```java
+public class ScreenshotManager {
+    
+    public static void captureOnFailure(ITestResult result, WebDriver driver) {
+        if (result.getStatus() == ITestResult.FAILURE) {
+            String testName = result.getMethod().getMethodName();
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
+            String filename = testName + "_" + timestamp + ".png";
+            
+            String screenshotPath = ScreenshotUtils.captureFullPageScreenshot(driver, filename);
+            ReportPortalLogger.attachScreenshot(screenshotPath);
+        }
+    }
+}
+```
+
+## 🚀 Execution Commands
+
+### **Run Tests with ReportPortal Integration**
+```bash
+# Run all tests
+mvn clean test -Dsuite=testng.xml
+
+# Run with specific environment
+mvn clean test -Dsuite=testng.xml -Dtest.env=staging
+
+# Run with custom attributes
+mvn clean test -Dsuite=testng.xml -Drp.attributes="smoke;regression;sprint-23"
+
+# Generate and publish results
+mvn clean test -Dsuite=testng.xml -Drp.launch="Release Candidate Testing"
+```
+
+## 📊 Accessing Reports
+
+1. **Open ReportPortal UI**: http://localhost:8080
+2. **Login** with your credentials
+3. **Navigate to your project**: selenium_framework
+4. **View launches** and detailed test results
+5. **Analyze trends** and failure patterns
+
+## 🎯 Integration Benefits
+
+### **Immediate Value**
+- ✅ **Real-time test monitoring** with live execution tracking
+- ✅ **Detailed failure analysis** with screenshots and logs
+- ✅ **Historical trend analysis** for quality insights
+- ✅ **Team collaboration** with shared reporting platform
+
+### **Advanced Analytics**
+- ✅ **ML-powered failure categorization** and root cause analysis
+- ✅ **Flaky test identification** and stability tracking
+- ✅ **Performance regression detection** and optimization insights
+- ✅ **Executive reporting** with business-level quality metrics
+
+---
+
+*This ReportPortal integration transforms your test automation into a comprehensive quality analytics platform, providing the insights needed for data-driven quality decisions.*
