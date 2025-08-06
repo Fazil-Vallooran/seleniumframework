@@ -1,14 +1,14 @@
-# 📈 Advanced Test Analytics & Reporting Platform
+# 📈 ReportPortal Analytics & Reporting Platform
 
-**Demonstrating enterprise-grade test observability and data-driven quality insights**
+**Enterprise-grade test reporting and analytics platform for comprehensive quality insights**
 
 ---
 
-## 🎯 Test Analytics Excellence Demonstrated
+## 🎯 ReportPortal Implementation Excellence
 
-This implementation showcases my expertise in establishing **comprehensive test observability platforms** that provide real-time insights, historical analytics, and data-driven quality metrics for enterprise testing operations.
+This implementation showcases expertise in establishing **comprehensive test reporting platforms** that provide real-time insights, historical analytics, and data-driven quality metrics for enterprise testing operations.
 
-### **🏆 What This Integration Proves**
+### **🏆 What This Integration Demonstrates**
 
 #### **Quality Engineering Leadership**
 - ✅ **Test Observability**: Real-time test execution monitoring and analytics
@@ -24,27 +24,30 @@ This implementation showcases my expertise in establishing **comprehensive test 
 - 🔄 **Automated Insights**: ML-powered failure analysis and recommendations
 - 📈 **Executive Reporting**: C-level quality dashboards and KPIs
 
-## 🏗️ Enterprise Reporting Architecture
+## 🏗️ ReportPortal Architecture
 
-### **Multi-Layer Analytics Platform**
+### **Core Services Platform**
 ```yaml
-📊 Enterprise Test Analytics Platform
-├── 🎯 Real-Time Monitoring      # Live execution tracking
-│   ├── Test Execution Status    # Pass/fail rates, execution times
-│   ├── Resource Utilization     # Infrastructure monitoring
-│   └── Alert Management         # Automated failure notifications
-├── 📈 Historical Analytics      # Trend analysis and insights
-│   ├── Quality Trends           # Success rates over time
-│   ├── Performance Metrics      # Execution time optimization
-│   └── Failure Patterns         # Root cause analysis
-├── 🎨 Executive Dashboards      # Business-level reporting
-│   ├── Quality KPIs             # Release readiness metrics
-│   ├── Team Performance         # Productivity measurements
-│   └── ROI Analytics            # Testing investment returns
-└── 🔄 Integration Layer         # CI/CD and tool integrations
-    ├── Jenkins Integration      # Build pipeline reporting
-    ├── Jira Integration         # Defect tracking correlation
-    └── Slack Notifications      # Team communication
+📊 ReportPortal Analytics Platform
+├── 🎯 Core Services              # Essential ReportPortal components
+│   ├── Gateway (Traefik)         # Reverse proxy and load balancer
+│   ├── API Service               # Core business logic and REST API
+│   ├── UI Service                # Web-based frontend interface
+│   ├── UAT Service               # Authentication and authorization
+│   ├── Jobs Service              # Background task processing
+│   └── Index Service             # Data indexing and search
+├── 📈 Analytics Engine           # ML-powered analysis
+│   ├── Auto Analyzer             # Pattern recognition and categorization
+│   ├── Analyzer Training         # Machine learning model training
+│   └── OpenSearch               # Search and analytics engine
+├── 🗄️ Data Layer                # Persistent storage
+│   ├── PostgreSQL               # Metadata and test results
+│   ├── RabbitMQ                 # Message queue for async processing
+│   └── File Storage             # Screenshots and logs
+└── 🔄 Integration Layer          # External system connections
+    ├── Test Framework Integration # Java/TestNG integration
+    ├── CI/CD Pipeline Reports     # Jenkins/GitHub Actions
+    └── Notification Systems       # Slack/Email alerts
 ```
 
 ### **Professional Implementation Highlights**
